@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Market Value Predictor</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; }
+    input, button { padding: 10px; margin: 5px; width: 100%; }
+    .result { margin-top: 20px; font-size: 18px; color: green; }
+  </style>
+</head>
+<body>
+  <h2>Player Market Value Predictor</h2>
+
+  <form id="predictForm">
+    <input type="number" name="age" placeholder="Age" required>
+    <input type="number" name="position_cat" placeholder="Position Cat (1-4)" required>
+    <input type="number" name="page_views" placeholder="Page Views" required>
+    <input type="number" step="0.1" name="fpl_value" placeholder="FPL Value" required>
+    <input type="number" step="0.1" name="fpl_sel" placeholder="% FPL Selected" required>
+    <input type="number" name="fpl_points" placeholder="FPL Points" required>
+    <input type="number" name="region" placeholder="Region (1-4)" required>
+    <input type="number" name="new_foreign" placeholder="New Foreign (0/1)" required>
+    <input type="number" name="big_club" placeholder="Big Club (0/1)" required>
+    <input type="number" name="new_signing" placeholder="New Signing (0/1)" required>
+    <button type="submit">Predict Market Value</button>
+  </form>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    const form = document.getElementById("predictForm");
+    const resultDiv = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      // Convert all values to numbers
+      for (let key in data) {
+        data[key] = parseFloat(data[key]);
+      }
+
+      try {
+        const res = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        resultDiv.textContent = "Predicted Market Value: €" + json.predicted_market_value + " million";
+      } catch (err) {
+        resultDiv.textContent = "Error: " + err.message;
+        resultDiv.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>
